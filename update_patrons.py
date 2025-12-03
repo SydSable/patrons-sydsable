@@ -6,6 +6,7 @@ Fetches patron data from Patreon API and updates CSV files
 
 import os
 import csv
+import json
 import requests
 from datetime import datetime, timedelta
 from typing import List, Dict, Tuple
@@ -23,29 +24,24 @@ BASE_URL = 'https://www.patreon.com/api/oauth2/v2'
 # --- NEW FUNCTION: Load Configuration from Local File ---
 def load_config(config_file: str) -> Tuple[str, str]:
     """
-    Loads PATREON_ACCESS_TOKEN and CAMPAIGN_ID from a local file,
-    falling back to environment variables.
+    Loads PATREON_ACCESS_TOKEN and CAMPAIGN_ID, prioritizing environment variables (e.g., GitHub Secrets),
+    falling back to local file.
     """
-    token = ''
-    campaign_id = ''
+    token = os.environ.get('PATREON_ACCESS_TOKEN', '')
+    campaign_id = os.environ.get('PATREON_CAMPAIGN_ID', '')
 
-    # 1. Try loading from the local file using the 'dotenv' library pattern
-    #    You'll need to install this: pip install python-dotenv
-    if os.path.exists(config_file):
-        try:
-            # Use dotenv_values to parse the key/value pairs
-            config = dotenv_values(config_file)
-            token = config.get('PATREON_ACCESS_TOKEN', '')
-            campaign_id = config.get('PATREON_CAMPAIGN_ID', '')
-        except Exception as e:
-            print(f"Warning: Could not parse configuration from {config_file}: {e}")
+    # Fallback to local file if not in env
+    if not token or not campaign_id:
+        if os.path.exists(config_file):
+            try:
+                config = dotenv_values(config_file)
+                if not token:
+                    token = config.get('PATREON_ACCESS_TOKEN', '')
+                if not campaign_id:
+                    campaign_id = config.get('PATREON_CAMPAIGN_ID', '')
+            except Exception as e:
+                print(f"Warning: Could not parse configuration from {config_file}: {e}")
 
-    # 2. Fall back to environment variables if not found in the file
-    if not token:
-        token = os.environ.get('PATREON_ACCESS_TOKEN', '')
-    if not campaign_id:
-        campaign_id = os.environ.get('PATREON_CAMPAIGN_ID', '')
-        
     return token, campaign_id
 # -------------------------------------------------------------------
 
@@ -206,13 +202,11 @@ def main():
     patrons = get_patrons()
     
     if not patrons:
-        # Simplified and updated instructions
         print("⚠️  No patrons found or API request failed.")
-        print("\nTo fix this, create a file named '.patreon.env' in the script directory with:")
-        print(f"   PATREON_ACCESS_TOKEN='your_token_here'")
-        print(f"   PATREON_CAMPAIGN_ID='your_campaign_id'")
-        print("   (Ensure this file is added to your .gitignore)")
-        print("\nAlternatively, set these as environment variables.")
+        print("\nSet PATREON_ACCESS_TOKEN and PATREON_CAMPAIGN_ID as environment variables,")
+        print("or create '.patreon.env' (gitignore'd) with:")
+        print("   PATREON_ACCESS_TOKEN='your_token_here'")
+        print("   PATREON_CAMPAIGN_ID='your_campaign_id'")
         return
     
     print("📊 Categorizing patrons by subscription length...")
