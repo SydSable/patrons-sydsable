@@ -207,6 +207,14 @@ def main():
         print("or create '.patreon.env' (gitignore'd) with:")
         print("   PATREON_ACCESS_TOKEN='your_token_here'")
         print("   PATREON_CAMPAIGN_ID='your_campaign_id'")
+
+        # Ensure an empty patrons.json exists so downstream steps don't fail
+        data_dir = '_data'
+        os.makedirs(data_dir, exist_ok=True)
+        json_path = os.path.join(data_dir, 'patrons.json')
+        with open(json_path, 'w', encoding='utf-8') as f:
+            json.dump([], f, indent=2, ensure_ascii=False)
+        print(f"✓ Generated {json_path} (empty)")
         return
     
     print("📊 Categorizing patrons by subscription length...")
