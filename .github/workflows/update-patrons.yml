@@ -29,7 +29,19 @@ jobs:
           PATREON_CAMPAIGN_ID: ${{ secrets.PATREON_CAMPAIGN_ID }}
         run: python update_patrons.py
 
-      - name: Commit and push changes
+      - name: Upload patrons.json as public release asset
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view data 2>/dev/null; then
+            gh release delete data -y
+          fi
+          gh release create data \
+            --title "Latest Patrons Data" \
+            --notes "Auto-generated patrons.json (public access)" \
+            _data/patrons.json
+
+      - name: Commit and push _data/ changes (optional backup)
         run: |
           git config --local user.email 'action@github.com'
           git config --local user.name 'GitHub Action'

@@ -26,9 +26,12 @@ This repository automatically fetches active Patreon patrons via the Patreon API
 - Runs automatically on **1st of every month** at midnight UTC.
 - Outputs committed back to repo.
 
-## Access Data
-- JSON: `https://raw.githubusercontent.com/YOUR_USERNAME/patrons-updater/main/_data/patrons.json`
+## Access Data (Public even for private repo)
+- **JSON (latest)**: `https://github.com/SydSable/patrons-updater/releases/latest/download/patrons.json`
+- Raw file (if repo public): `https://raw.githubusercontent.com/SydSable/patrons-updater/main/_data/patrons.json`
 - In Jekyll: `site.data.patrons` (array of {member_id, displayed_name, tier, last_payment_timestamp})
+
+**Private Repo Note**: Release assets are always public. Workflow uploads to Releases tag "data".
 
 ## Local Testing
 ```
@@ -36,4 +39,6 @@ pip install requests python-dotenv
 python update_patrons.py
 ```
 
-**Note**: `.patreon.env` is gitignored; use secrets for production.
+**Domain Proxy**: If you have a domain, fetch from release URL server-side (e.g., Jekyll Liquid fetch or Node proxy) to cache/brand.
+
+**Note**: `.patreon.env` gitignored; GitHub Secrets prioritized.
