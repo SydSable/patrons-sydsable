@@ -1,0 +1,9 @@
+.patreon.env
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.env

@@ -1,0 +1,57 @@
+name: Update Patrons Data
+
+permissions:
+  contents: write
+
+on:
+  schedule:
+    - cron: "0 0 1 * *" # Run at midnight UTC on the 1st of every month
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install requests python-dotenv
+
+      - name: Run patron updater
+        env:
+          PATREON_ACCESS_TOKEN: ${{ secrets.PATREON_ACCESS_TOKEN }}
+          PATREON_CAMPAIGN_ID: ${{ secrets.PATREON_CAMPAIGN_ID }}
+        run: python update_patrons.py
+
+      - name: Upload patrons.json as public release asset
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_RELEASE_TOKEN }} # Use your PAT here
+        run: |
+          if gh release view data 2>/dev/null; then
+            gh release delete data -y
+          fi
+          gh release create data \
+            --title "Latest Patrons Data" \
+            --notes "Auto-generated patrons.json (public access)" \
+            _data/patrons.json
+
+      - name: Commit and push _data/ changes (optional backup)
+        run: |
+          git config --local user.email 'action@github.com'
+          git config --local user.name 'GitHub Action'
+          git add _data/*
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m 'Update patron data [skip ci]'
+            git push
+          fi
