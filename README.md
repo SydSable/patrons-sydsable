@@ -28,8 +28,7 @@ This repository automatically fetches active Patreon patrons via the Patreon API
 - Outputs committed back to repo.
 
 ## Access Data (Public even for private repo)
-- **JSON (latest)**: `https://github.com/SydSable/patrons-updater/releases/latest/download/patrons.json`
-- Raw file (if repo public): `https://raw.githubusercontent.com/SydSable/patrons-sydsable/refs/heads/main/_data/patrons.json`
+- **JSON Raw file (if repo public)**: [https://raw.githubusercontent.com/SydSable/patrons-sydsable/refs/heads/main/_data/patrons.json](https://raw.githubusercontent.com/SydSable/patrons-sydsable/refs/heads/main/_data/patrons.json)
 - In Jekyll: `site.data.patrons` (array of {member_id, displayed_name, tier, last_payment_timestamp})
 
 **Private Repo Note**: Release assets are always public. Workflow uploads to Releases tag "data".
